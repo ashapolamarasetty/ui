@@ -98,10 +98,10 @@ const activity = [
       </div>
 
       <nav class="side-nav">
-        <a v-for="item in navItems" :key="item.label" href="#" class="side-link" :class="{ active: item.active }" :title="collapsed ? item.label : ''">
+        <RouterLink v-for="item in navItems" :key="item.label" :to="item.icon === 'projects' ? '/projects' : '#'" class="side-link" :class="{ active: item.active }" :title="collapsed ? item.label : ''">
           <svg class="side-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" v-html="navIconPaths[item.icon]"></svg>
           <span v-if="!collapsed" class="side-label">{{ item.label }}</span>
-        </a>
+        </RouterLink>
       </nav>
 
       <div class="side-footer">
