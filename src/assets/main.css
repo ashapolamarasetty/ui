@@ -1,0 +1,255 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  --bg: #f4efe7;
+  --fg: #000000;
+  --muted: #6b6b63;
+  --border: #e5ded2;
+  --dark-bg: #ece5d8;
+  --dark-bg-raised: #f8f4ec;
+  --dark-fg: #000000;
+  --dark-muted: #888888;
+  --dark-border: #e5ded2;
+  --accent: #c22e2e;
+  --accent-dark: #9c2222;
+  --accent-light: #e05555;
+  --surface: #ffffff;
+  --code-bg: #ece5d8;
+  --code-fg: #000000;
+  --preview-bg: #ece3d3;
+  --preview-grid: rgba(0, 0, 0, 0.045);
+  --term-bg: #f8f4ec;
+  --term-bg-alt: #f0ede6;
+  --term-fg: #111111;
+  --term-muted: #999999;
+  --term-border: #eeeeee;
+  --font-geist-mono: "Geist Mono", "Geist Mono Fallback", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --max-width: 1180px;
+  --font-sans:
+    'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --grid-line: rgba(46, 102, 128, 0.05);
+}
+
+:root[data-theme="dark"] {
+  --bg: #16140f;
+  --fg: #f2ede4;
+  --muted: #a49b8b;
+  --border: #322e26;
+  --accent-light: #e8664f;
+  --surface: #211e17;
+  --grid-line: rgba(224, 85, 85, 0.07);
+  --code-bg: #221f19;
+  --code-fg: #f2ede4;
+  --preview-bg: #0f0d09;
+  --preview-grid: rgba(255, 255, 255, 0.04);
+  --term-bg: #1c1a15;
+  --term-bg-alt: #14120e;
+  --term-fg: #f0ece3;
+  --term-muted: #8a8478;
+  --term-border: #2e2a23;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+  scroll-behavior: smooth;
+}
+
+/* Animations */
+@keyframes hero-intro {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes terminal-in {
+  0% {
+    opacity: 0;
+    transform: translateY(80px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in-delayed {
+  0%, 80% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+body {
+  margin: 0;
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid-line) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+  background-size: 32px 32px, 32px 32px;
+  color: var(--fg);
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 20px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition:
+    background 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+    color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  position: relative;
+  will-change: transform;
+}
+
+.btn:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 10px 24px rgba(194, 46, 46, 0.22);
+}
+
+.btn:active {
+  transform: translateY(0px) scale(0.98);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent-light), var(--accent));
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+}
+
+.btn-dark {
+  background: linear-gradient(135deg, var(--accent-light), var(--accent));
+  color: #ffffff;
+  border: 1px solid var(--accent);
+  font-weight: 600;
+}
+
+.btn-dark:hover {
+  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  border-color: var(--accent-dark);
+}
+
+.btn-outline-header {
+  background: transparent;
+  color: var(--fg);
+  border: 1px solid var(--border);
+}
+
+.btn-outline-header:hover {
+  background: rgba(194, 46, 46, 0.06);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+  font-weight: 600;
+}
+
+.btn-outline:hover {
+  background: linear-gradient(135deg, var(--accent-light), var(--accent));
+  color: #ffffff;
+  border-color: transparent;
+}
+
+.btn-light {
+  background: var(--dark-fg);
+  color: var(--dark-bg);
+}
+
+.btn-light:hover {
+  background: #d4d4d4;
+}
+
+.btn-ghost-dark {
+  background: transparent;
+  color: var(--dark-fg);
+  border-color: var(--dark-border);
+}
+
+.btn-ghost-dark:hover {
+  border-color: var(--dark-fg);
+}
+
+.btn-sm {
+  height: 32px;
+  padding: 0 14px;
+  font-size: 13px;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  animation: fade-in-delayed 0.6s ease-out;
+}
+
+.eyebrow::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}

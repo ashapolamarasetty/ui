@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3)",
+      "Bash(awk '/^<template>/,/^<\\\\/template>/{if\\(/^  <\\\\/div>$/\\)print NR\": \"$0}' src/views/DashboardHome.vue)"
+    ]
+  }
+}
