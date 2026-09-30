@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IMCS | Dashboard – Day position by account</title>
+<style>
+:root{
+  --red:#c62828;--red-ink:#a1231b;--red-bg:#fdecea;
+  --ink:#1f2328;--ink-2:#3d434a;--muted:#5f6670;
+  --line:#e3e5e8;--line-2:#eef0f2;--line-strong:#d5d8dc;
+  --page:#f5f6f8;--card:#ffffff;--sub:#fafbfc;--head:#f3f4f6;--foot:#f7f8f9;
+  --blue:#1e4fa3;--navy:#1e3a8a;--navy-bg:#e8eefb;
+  --green:#1e6b2e;--green-bg:#e7f4ea;--amber:#d9730d;
+  --side:#2b2f36;--side-w:64px;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:"Segoe UI","Helvetica Neue",system-ui,sans-serif;background:var(--page);color:var(--ink);font-size:13px;line-height:1.4}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+/* ---------- Shell ---------- */
+.app{display:flex;min-height:100vh}
+.side{width:var(--side-w);flex:0 0 var(--side-w);background:var(--side);display:flex;flex-direction:column;align-items:center;gap:18px;padding-top:14px;position:sticky;top:0;height:100vh}
+.logo{width:44px;height:44px;border-radius:8px;background:var(--red);color:#fff;font-size:12px;font-weight:700;display:grid;place-items:center}
+.nav{width:44px;height:40px;border-radius:8px;border:0;background:transparent;color:#9aa1ab;display:grid;place-items:center}
+.nav:hover{background:#383d45}
+.nav.on{background:var(--red);color:#fff}
+.main{flex:1 1 auto;min-width:0;display:flex;flex-direction:column}
+.top{height:64px;flex:0 0 auto;background:var(--card);border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;padding:0 24px}
+.top h1{font-size:18px;font-weight:600;margin:0}
+.crumb{font-size:12px;color:var(--muted)}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--red);color:#fff;font-weight:600;display:grid;place-items:center;flex:0 0 auto}
+.content{padding:20px 24px 32px;display:flex;flex-direction:column;gap:16px;min-width:0}
+
+/* ---------- Date bar ---------- */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px 24px;flex-wrap:wrap}
+.asat{font-size:14px;color:var(--ink-2)}
+.ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:var(--ink-2)}
+.btn{height:34px;padding:0 12px;border:1px solid var(--line-strong);background:var(--card);border-radius:6px;white-space:nowrap}
+.btn:hover{background:#f0f1f3}
+.btn.icon{width:34px;padding:0}
+.btn.sm{height:30px;font-size:12px}
+.date{height:34px;padding:0 12px;border:1px solid var(--line-strong);background:var(--card);border-radius:6px;display:flex;align-items:center;font-weight:600}
+.status{display:flex;align-items:center;gap:6px;white-space:nowrap;margin-left:4px}
+.dot{width:8px;height:8px;border-radius:50%;background:#2e7d32}
+select{height:34px;border:1px solid var(--line-strong);border-radius:6px;background:var(--card);padding:0 8px}
+
+/* ---------- KPI cards ---------- */
+.kpis{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+.kpi{background:var(--card);border:1px solid var(--line);border-top:3px solid var(--red);padding:14px 16px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.kpi.amber{border-top-color:var(--amber)}
+.kpi.navy{border-top-color:var(--navy)}
+.kpi .lbl{font-size:12px;font-weight:600;color:var(--ink-2)}
+.kpi .val{font-size:28px;font-weight:700;line-height:1.2;font-variant-numeric:tabular-nums}
+.kpi .val.neg{color:var(--red-ink)}
+.kpi .sub{font-size:12px;color:var(--muted)}
+.kpi .acc{font-size:12px;color:var(--red-ink);font-weight:600}
+.kpi .foot{margin-top:4px}
+
+.badge{display:inline-flex;align-items:center;font-size:11px;font-weight:600;line-height:18px;padding:0 8px;border-radius:9px;white-space:nowrap}
+.b-short{background:var(--red-bg);color:var(--red-ink)}
+.b-neutral{background:#eef0f2;color:#4a5058}
+.b-net{background:var(--navy-bg);color:var(--navy)}
+.b-ok{background:var(--green-bg);color:var(--green)}
+
+/* ---------- Position card ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:8px;min-width:0;display:flex;flex-direction:column}
+.card-h{padding:16px 18px 12px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px 24px;flex-wrap:wrap}
+.card-h h2{font-size:15px;font-weight:600;margin:0}
+.card-h p{font-size:12px;color:var(--muted);margin:3px 0 0;max-width:640px}
+.pills{display:flex;gap:6px;flex-wrap:wrap}
+.pill{height:32px;padding:0 14px;border-radius:16px;border:1px solid var(--line-strong);background:var(--card);color:var(--ink-2);font-size:12px;white-space:nowrap}
+.pill.on{background:var(--red);border-color:var(--red);color:#fff;font-weight:600}
+.tools{padding:0 18px 12px;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.seg{display:flex;border:1px solid var(--line-strong);border-radius:6px;overflow:hidden;flex:0 0 auto}
+.seg button{height:30px;padding:0 12px;border:0;background:var(--card);color:var(--ink-2);font-size:12px;white-space:nowrap}
+.seg button + button{border-left:1px solid var(--line-strong)}
+.seg button.on{background:var(--ink);color:#fff;font-weight:600}
+.chk{display:flex;align-items:center;gap:6px;color:var(--ink-2);font-size:12px;white-space:nowrap}
+.search{height:30px;width:260px;max-width:100%;border:1px solid var(--line-strong);border-radius:6px;padding:0 10px;font-size:12px}
+.summary{margin-left:auto;display:flex;gap:10px;align-items:center;font-size:12px;color:var(--muted);white-space:nowrap}
+
+/* ---------- Grid ---------- */
+.wrap{overflow:auto;max-height:max(420px,calc(100vh - 180px));border-top:1px solid var(--line)}
+#grid{width:100%;min-width:1100px;border-collapse:separate;border-spacing:0;font-variant-numeric:tabular-nums}
+#grid th,#grid td{padding:0 10px;text-align:right;white-space:nowrap;vertical-align:middle;border-bottom:1px solid var(--line-2)}
+#grid .l{text-align:left}
+#grid .gs{border-left:1px solid var(--line-strong)}
+#grid col.c-party{width:320px}
+#grid col.c-num{width:84px}
+#grid col.c-ver{width:150px}
+
+/* header: both rows sticky; second row offset measured in JS (--h1) */
+#grid thead th{position:sticky;top:0;z-index:3;background:var(--head);color:var(--muted);font-size:12px;font-weight:600;height:34px;border-bottom:1px solid var(--line)}
+#grid thead tr.r2 th{top:var(--h1,34px)}
+#grid thead th.day{text-align:center;color:var(--ink)}
+#grid thead th.corner{left:0;z-index:5;vertical-align:bottom;padding-bottom:8px}
+
+/* first column sticky on scroll-x */
+#grid td.stick{position:sticky;left:0;z-index:2;white-space:normal;box-shadow:1px 0 0 var(--line)}
+#grid thead th.corner{box-shadow:1px 0 0 var(--line)}
+
+/* body rows */
+#grid tr.p td{background:var(--card);height:52px;font-weight:600}
+#grid tr.p:hover td{background:#fcfcfd}
+#grid tr.a td{background:var(--sub);height:36px;color:var(--ink-2);font-weight:400}
+#grid tr.a td.stick{padding-left:40px}
+#grid tr.empty td{background:var(--card);height:56px;color:var(--muted);text-align:center;white-space:normal}
+
+.pname{display:flex;align-items:flex-start;gap:6px;padding:6px 0}
+.tog{flex:0 0 20px;height:20px;border:0;background:none;padding:0;color:var(--ink-2);font-size:12px;border-radius:4px}
+.tog:hover{background:var(--line-2)}
+.pinfo{min-width:0}
+.pn{line-height:1.3}
+.pmeta{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;margin-top:3px}
+.code{font-family:Consolas,"SFMono-Regular",monospace;font-size:11px;color:#6b7280;font-weight:400;word-break:break-all}
+.acct{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+
+.neg{color:var(--red-ink);font-weight:600}
+.mv{border:0;background:none;padding:2px 4px;margin:0 -4px;border-radius:4px;color:var(--blue);text-decoration:underline dotted;text-underline-offset:3px}
+.mv:hover{background:#eef3fb}
+#grid td.brk{box-shadow:inset 0 0 0 2px var(--amber)}
+.ver{font-weight:400;font-size:12px;color:var(--green);white-space:nowrap}
+.vbtn{height:28px;padding:0 12px;border:1px solid var(--red);background:var(--card);color:var(--red-ink);border-radius:6px;font-size:12px;font-weight:600}
+.vbtn:hover{background:var(--red-bg)}
+
+/* footer totals: sticky to bottom; offsets measured in JS (--fb) */
+#grid tfoot td{position:sticky;bottom:var(--fb,0);z-index:3;background:var(--foot);height:38px;font-weight:600;border-bottom:1px solid var(--line)}
+#grid tfoot tr:first-child td{border-top:1px solid var(--line-strong)}
+#grid tfoot td.stick{z-index:5}
+
+/* closing-only view */
+#grid.closing-only .ob,#grid.closing-only .mb{display:none}
+#grid.closing-only .cb{border-left:1px solid var(--line-strong)}
+#grid.closing-only{min-width:760px}
+
+.legend{display:flex;gap:8px 20px;flex-wrap:wrap;padding:10px 18px;font-size:12px;color:var(--muted);border-top:1px solid var(--line)}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.sw-brk{display:inline-block;width:22px;height:14px;box-shadow:inset 0 0 0 2px var(--amber);border-radius:2px}
+
+/* ---------- Drawer ---------- */
+.drawer-bg{position:fixed;inset:0;background:rgba(20,22,26,.35);opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+.drawer{position:fixed;top:0;right:0;height:100vh;width:min(480px,100vw);background:var(--card);border-left:1px solid var(--line);z-index:21;transform:translateX(100%);visibility:hidden;transition:transform .2s ease,visibility .2s;display:flex;flex-direction:column}
+.app.open .drawer-bg{opacity:1;pointer-events:auto}
+.app.open .drawer{transform:none;visibility:visible}
+.dh{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.dh h3{margin:0;font-size:15px}
+.dh p{margin:4px 0 0;font-size:12px;color:var(--muted)}
+.x{border:0;background:none;font-size:22px;line-height:1;color:var(--muted);width:32px;height:32px;border-radius:6px;flex:0 0 auto}
+.x:hover{background:var(--line-2)}
+.db{padding:12px 20px;overflow:auto}
+.dtable{width:100%;border-collapse:collapse;font-size:12px;font-variant-numeric:tabular-nums}
+.dtable th,.dtable td{padding:8px;border-bottom:1px solid var(--line-2);text-align:right}
+.dtable th{color:var(--muted);font-weight:600;background:var(--head)}
+.dtable .l{text-align:left}
+.dtable tfoot td{font-weight:600;background:var(--foot)}
+.nodata{padding:32px 0;text-align:center;color:var(--muted)}
+
+@media (max-width:1280px){.kpis{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:860px){.kpis{grid-template-columns:repeat(2,minmax(0,1fr))}.summary{margin-left:0}}
+@media (prefers-reduced-motion:reduce){.drawer,.drawer-bg{transition:none}}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <aside class="side" aria-label="Main navigation">
+    <div class="logo">IMCS</div>
+    <button class="nav on" aria-label="Dashboard"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="4" width="6" height="6"/><rect x="14" y="4" width="6" height="6"/><rect x="4" y="14" width="6" height="6"/><rect x="14" y="14" width="6" height="6"/></svg></button>
+    <button class="nav" aria-label="Positions"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 17 9 11 13 15 21 7"/></svg></button>
+    <button class="nav" aria-label="Inventory"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/></svg></button>
+    <button class="nav" aria-label="Collateral"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><ellipse cx="12" cy="6" rx="8" ry="3"/><path d="M4 6v12c0 1.7 3.6 3 8 3s8-1.3 8-3V6"/></svg></button>
+  </aside>
+
+  <div class="main">
+    <header class="top">
+      <div><h1>Dashboard</h1><div class="crumb">IMCS / Overview / Dashboard</div></div>
+      <div class="avatar" aria-label="Signed in user">A</div>
+    </header>
+
+    <div class="content">
+      <div class="bar">
+        <div class="asat">Day position as at <strong id="asAt"></strong></div>
+        <div class="ctl">
+          <button class="btn icon" id="prev" aria-label="Previous business day">‹</button>
+          <div class="date" id="dateLbl"></div>
+          <button class="btn icon" id="next" aria-label="Next business day">›</button>
+          <span class="status"><span class="dot"></span>Updated <span id="upd"></span> · Auto-refresh</span>
+          <select id="auto" aria-label="Auto-refresh interval"><option>Off</option><option selected>15s</option><option>30s</option><option>60s</option></select>
+          <button class="btn" id="refresh">Refresh</button>
+        </div>
+      </div>
+
+      <section class="kpis" id="kpis"></section>
+
+      <section class="card">
+        <div class="card-h">
+          <div>
+            <h2>Day position (T / T+1 / T+2)</h2>
+            <p>Closing balance per party and account, computed in real time. Select a movement value to view the underlying trades.</p>
+          </div>
+          <div class="pills" id="pills"></div>
+        </div>
+        <div class="tools">
+          <div class="seg" role="group" aria-label="Column view">
+            <button id="vFull" class="on" aria-pressed="true">Full breakdown</button>
+            <button id="vClose" aria-pressed="false">Closing only</button>
+          </div>
+          <label class="chk"><input type="checkbox" id="shortOnly"> Short accounts only</label>
+          <button class="btn sm" id="expAll">Expand all</button>
+          <button class="btn sm" id="colAll">Collapse all</button>
+          <input class="search" id="q" type="search" placeholder="Search party or account number" aria-label="Search party or account number">
+          <div class="summary"><span id="recon"></span><span id="verCount"></span></div>
+        </div>
+        <div class="wrap" id="wrap">
+          <table id="grid">
+            <colgroup id="cols"></colgroup>
+            <thead>
+              <tr class="r1">
+                <th class="l corner" rowspan="2">Party / account</th>
+                <th class="gs day" colspan="3" data-span id="h0"></th>
+                <th class="gs day" colspan="3" data-span id="h1"></th>
+                <th class="gs day" colspan="3" data-span id="h2"></th>
+                <th class="gs l corner-v" rowspan="2" style="vertical-align:bottom;padding-bottom:8px">Verified</th>
+              </tr>
+              <tr class="r2">
+                <th class="gs ob">Opening</th><th class="mb">Movement</th><th class="cb">Closing</th>
+                <th class="gs ob">Opening</th><th class="mb">Movement</th><th class="cb">Closing</th>
+                <th class="gs ob">Opening</th><th class="mb">Movement</th><th class="cb">Closing</th>
+              </tr>
+            </thead>
+            <tbody id="rows"></tbody>
+            <tfoot id="foot"></tfoot>
+          </table>
+        </div>
+        <div class="legend">
+          <span><span class="neg">▲ −123</span>Short closing balance</span>
+          <span><span class="badge b-short">1 of 3 short</span>Party has short accounts, even if it nets long</span>
+          <span><span class="sw-brk"></span>Reconciliation break</span>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <div class="drawer-bg" id="dbg"></div>
+  <aside class="drawer" id="drawer" aria-label="Underlying trades" aria-hidden="true">
+    <div class="dh"><div><h3 id="dTitle"></h3><p id="dSub"></p></div><button class="x" id="dClose" aria-label="Close">×</button></div>
+    <div class="db" id="dBody"></div>
+  </aside>
+</div>
+
+<script>
+/* ---------- Mock data: each party has 3 accounts. open = T+0 opening, mv = movements for T+0, T+1, T+2 ---------- */
+const PARTIES = [
+  {id:"dbs",  name:"DBS Bank Ltd", code:"UAA-LS-CB-DBS-00000000001", type:"bank", verified:{by:"R. Tan",at:"09:14"},
+   accounts:[{no:"DBS-ACC-01",open:10,mv:[0,0,0]},{no:"DBS-ACC-02",open:12,mv:[0,0,0]},{no:"DBS-ACC-03",open:-3,mv:[0,0,0]}]},
+  {id:"db",   name:"Deutsche Bank AG, Singapore Branch", code:"DB-UAA-LS", type:"bank",
+   accounts:[{no:"DB-ACC-01",open:-150,mv:[0,0,0]},{no:"DB-ACC-02",open:-80,mv:[0,0,0]},{no:"DB-ACC-03",open:7,mv:[0,0,0]}]},
+  {id:"gf",   name:"Gold Fields Ltd", tag:"OCBC Bank", code:"UAA-LS-CL-GOLDFIELDS-00001", type:"customer", verified:{by:"R. Tan",at:"09:16"},
+   accounts:[{no:"GF-ACC-01",open:0,mv:[0,0,0]},{no:"GF-ACC-02",open:0,mv:[0,0,0]},{no:"GF-ACC-03",open:0,mv:[0,0,0]}]},
+  {id:"icbc", name:"ICBC Standard Bank Plc", code:"ICBCS-UAA-LS", type:"bank",
+   accounts:[{no:"ICBCS-ACC-01",open:-500,mv:[0,0,0]},{no:"ICBCS-ACC-02",open:-300,mv:[0,0,0]},{no:"ICBCS-ACC-03",open:-83,mv:[0,0,0]}]},
+  {id:"jpm",  name:"JPMorgan Chase Bank, Singapore Branch", code:"JPM-UAA-LS", type:"bank", verified:{by:"M. Lee",at:"09:20"},
+   accounts:[{no:"JPM-ACC-01",open:300,mv:[0,50,0]},{no:"JPM-ACC-02",open:150,mv:[0,-50,0]},{no:"JPM-ACC-03",open:34,mv:[0,0,0]}]},
+  {id:"c2",   name:"[Customer 2]", code:"UAA-LS-CL-[CODE]-00002", type:"customer",
+   accounts:[{no:"C2-ACC-01",open:-235,mv:[0,0,0]},{no:"C2-ACC-02",open:-200,mv:[0,0,0]},{no:"C2-ACC-03",open:0,mv:[0,0,0]}]},
+  {id:"c3",   name:"[Customer 3]", code:"UAA-LS-CL-[CODE]-00003", type:"customer",
+   accounts:[{no:"C3-ACC-01",open:800,mv:[0,0,0]},{no:"C3-ACC-02",open:400,mv:[0,0,0]},{no:"C3-ACC-03",open:0,mv:[0,0,0]}]},
+  {id:"cb5",  name:"[Clearing bank 5]", code:"[CB5]-UAA-LS", type:"bank", verified:{by:"M. Lee",at:"09:22"},
+   accounts:[{no:"CB5-ACC-01",open:515,mv:[0,0,0]},{no:"CB5-ACC-02",open:0,mv:[0,0,0]},{no:"CB5-ACC-03",open:0,mv:[0,0,0]}]}
+];
+
+const S = {date:new Date(2026,8,30), filter:"all", closingOnly:false, shortOnly:false, q:"", expanded:new Set()};
+const $ = id => document.getElementById(id);
+
+/* ---------- Helpers ---------- */
+const fmt   = n => (n>0?"+":n<0?"−":"") + Math.abs(n).toLocaleString("en-GB");
+const plain = n => (n<0?"−":"") + Math.abs(n).toLocaleString("en-GB");
+const dd    = d => d.toLocaleDateString("en-GB");
+const addBiz = (d,n) => {const x=new Date(d);let k=0;while(k<Math.abs(n)){x.setDate(x.getDate()+(n>0?1:-1));if(x.getDay()%6)k++;}return x;};
+const now   = () => new Date().toLocaleTimeString("en-GB");
+const esc   = s => String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function days(acc){let o=acc.open;return acc.mv.map(m=>{const r={open:o,mv:m,close:o+m};o=r.close;return r;});}
+function partyDays(p){const ds=p.accounts.map(days);return [0,1,2].map(i=>({open:ds.reduce((s,d)=>s+d[i].open,0),mv:ds.reduce((s,d)=>s+d[i].mv,0),close:ds.reduce((s,d)=>s+d[i].close,0)}));}
+const shortAccs = p => p.accounts.filter(a=>days(a).some(d=>d.close<0));
+const inFilter  = p => S.filter==="all" || (S.filter==="customer"?p.type==="customer":p.type==="bank");
+function matches(p){if(!S.q)return true;const q=S.q.toLowerCase();return p.name.toLowerCase().includes(q)||p.code.toLowerCase().includes(q)||p.accounts.some(a=>a.no.toLowerCase().includes(q));}
+
+/* ---------- Render ---------- */
+function renderHeader(){
+  $("asAt").textContent=dd(S.date); $("dateLbl").textContent=dd(S.date);
+  ["h0","h1","h2"].forEach((id,i)=>$(id).textContent=`T+${i} · ${dd(addBiz(S.date,i))}`);
+  document.querySelectorAll("[data-span]").forEach(th=>th.colSpan=S.closingOnly?1:3);
+  const n=S.closingOnly?3:9;
+  $("cols").innerHTML=`<col class="c-party">`+`<col class="c-num">`.repeat(n)+`<col class="c-ver">`;
+}
+
+function renderKpis(){
+  const list=PARTIES.filter(inFilter);
+  const html=[0,1,2].map(i=>{
+    let gl=0,gs=0,ps=0,as=0,at=0;
+    list.forEach(p=>{const c=partyDays(p)[i].close;if(c<0){gs+=c;ps++;}else gl+=c;p.accounts.forEach(a=>{at++;if(days(a)[i].close<0)as++;});});
+    return `<div class="kpi"><div class="lbl">T+${i} short position</div>
+      <div class="val ${gs<0?"neg":""}">${plain(gs)}</div>
+      <div class="sub">Long ${fmt(gl)} · ${ps} of ${list.length} parties short</div>
+      <div class="acc">${as} of ${at} accounts short</div>
+      <div class="foot"><span class="badge b-net">Net ${fmt(gl+gs)}</span></div></div>`;
+  }).join("");
+  $("kpis").innerHTML=html+
+    `<div class="kpi amber"><div class="lbl">Open exceptions</div><div class="val">192</div><div class="sub">Unprocessed trades awaiting review</div></div>
+     <div class="kpi navy"><div class="lbl">Pending finalization</div><div class="val">773</div><div class="sub">Trades in the workflow queue</div></div>`;
+}
+
+function renderPills(){
+  const c=PARTIES.filter(p=>p.type==="customer").length,b=PARTIES.length-c;
+  $("pills").innerHTML=[["all",`All (${PARTIES.length})`],["customer",`Customers (${c})`],["bank",`Clearing banks (${b})`]]
+    .map(([k,l])=>`<button class="pill ${S.filter===k?"on":""}" data-f="${k}" aria-pressed="${S.filter===k}">${l}</button>`).join("");
+}
+
+function cells(ds,{partyId,accIdx,isParty}){
+  return ds.map((d,i)=>{
+    const brk = (i>0 && d.open!==ds[i-1].close) || d.open+d.mv!==d.close;
+    const mv = isParty ? plain(d.mv)
+      : `<button class="mv" data-p="${partyId}" data-a="${accIdx}" data-d="${i}" aria-label="View trades for T+${i}">${plain(d.mv)}</button>`;
+    const cl = d.close<0 ? `<td class="cb neg">▲ ${plain(d.close)}</td>` : `<td class="cb">${fmt(d.close)}</td>`;
+    return `<td class="gs ob${brk?" brk":""}">${plain(d.open)}</td><td class="mb">${mv}</td>${cl}`;
+  }).join("");
+}
+
+function renderRows(){
+  let list=PARTIES.filter(inFilter).filter(matches);
+  if(S.shortOnly) list=list.filter(p=>shortAccs(p).length);
+  const q=S.q.toLowerCase(), tot=[0,1,2].map(()=>({gl:0,gs:0}));
+  let html="";
+  list.forEach(p=>{
+    const pd=partyDays(p), sa=shortAccs(p);
+    const open=S.expanded.has(p.id)||S.shortOnly||(q&&p.accounts.some(a=>a.no.toLowerCase().includes(q)));
+    pd.forEach((d,i)=>{if(d.close<0)tot[i].gs+=d.close;else tot[i].gl+=d.close;});
+    const tag=p.tag?`<span class="badge b-neutral">${esc(p.tag)}</span>`:"";
+    const badge=sa.length?`<span class="badge b-short">${sa.length} of ${p.accounts.length} short</span>`:"";
+    const ver=p.verified?`<span class="ver">✓ ${esc(p.verified.by)} · ${p.verified.at}</span>`:`<button class="vbtn" data-v="${p.id}">Verify</button>`;
+    html+=`<tr class="p"><td class="l stick"><div class="pname">
+        <button class="tog" data-t="${p.id}" aria-expanded="${!!open}" aria-label="${open?"Collapse":"Expand"} ${esc(p.name)}">${open?"▾":"▸"}</button>
+        <div class="pinfo"><div class="pn">${esc(p.name)}</div><div class="pmeta"><span class="code">${esc(p.code)}</span>${tag}${badge}</div></div>
+      </div></td>${cells(pd,{isParty:true})}<td class="gs l">${ver}</td></tr>`;
+    if(open) p.accounts.forEach((a,ai)=>{
+      const ad=days(a); if(S.shortOnly&&!ad.some(d=>d.close<0))return;
+      html+=`<tr class="a"><td class="l stick"><div class="acct">Account ${ai+1}<span class="code">${esc(a.no)}</span></div></td>${cells(ad,{partyId:p.id,accIdx:ai})}<td class="gs"></td></tr>`;
+    });
+  });
+  const span=S.closingOnly?5:11;
+  if(!list.length) html=`<tr class="empty"><td colspan="${span}">No parties match. Clear the search or filters to see all positions.</td></tr>`;
+  $("rows").innerHTML=html;
+
+  const accCount=list.reduce((s,p)=>s+p.accounts.length,0);
+  const foot=(label,key)=>`<tr><td class="l stick">${label}</td>${tot.map(t=>{
+    const v=key==="net"?t.gl+t.gs:t[key];
+    return `<td class="gs ob"></td><td class="mb"></td><td class="cb${key==="gs"&&v<0?" neg":""}">${key==="gs"?plain(v):fmt(v)}</td>`;}).join("")}<td class="gs"></td></tr>`;
+  $("foot").innerHTML=foot("Gross long","gl")+foot("Gross short","gs")+foot(`Net position · ${list.length} parties · ${accCount} accounts`,"net");
+
+  const breaks=document.querySelectorAll("#rows .brk").length;
+  $("recon").innerHTML=breaks?`<span class="badge b-short">Recon check: ${breaks} break${breaks>1?"s":""}</span>`:`<span class="badge b-ok">Recon check: 0 breaks</span>`;
+  const shown=PARTIES.filter(inFilter);
+  $("verCount").textContent=`Verified ${shown.filter(p=>p.verified).length} of ${shown.length} parties`;
+  syncSticky();
+}
+
+/* measure real row heights so the stacked sticky rows never overlap */
+function syncSticky(){
+  const r1=document.querySelector("#grid thead tr.r1 th.day");
+  if(r1) $("grid").style.setProperty("--h1",r1.offsetHeight+"px");
+  const fr=[...$("foot").rows]; let b=0;
+  for(let i=fr.length-1;i>=0;i--){fr[i].style.setProperty("--fb",b+"px");b+=fr[i].offsetHeight;}
+}
+
+function render(){
+  $("grid").classList.toggle("closing-only",S.closingOnly);
+  $("vFull").classList.toggle("on",!S.closingOnly);$("vFull").setAttribute("aria-pressed",!S.closingOnly);
+  $("vClose").classList.toggle("on",S.closingOnly);$("vClose").setAttribute("aria-pressed",S.closingOnly);
+  renderHeader();renderPills();renderKpis();renderRows();
+}
+
+/* ---------- Drawer ---------- */
+function openDrawer(pid,ai,di){
+  const p=PARTIES.find(x=>x.id===pid),a=p.accounts[ai],d=days(a)[di];
+  $("dTitle").textContent=`${p.name} · Account ${+ai+1}`;
+  $("dSub").textContent=`${a.no} · T+${di} · value date ${dd(addBiz(S.date,+di))} · movement ${plain(d.mv)}`;
+  if(!d.mv){$("dBody").innerHTML=`<div class="nodata">No trades settle on this account for T+${di}.</div>`;}
+  else{
+    const half=Math.round(d.mv/2),dir=d.mv>0?"Receive":"Deliver";
+    const rows=[{ref:"TRD-26093001",qty:half,st:"Matched"},{ref:"TRD-26093014",qty:d.mv-half,st:"Pending"}];
+    $("dBody").innerHTML=`<table class="dtable"><thead><tr><th class="l">Trade ref</th><th class="l">Direction</th><th>Quantity</th><th class="l">Status</th></tr></thead>
+      <tbody>${rows.map(r=>`<tr><td class="l code">${r.ref}</td><td class="l">${dir}</td><td>${fmt(r.qty)}</td><td class="l"><span class="badge ${r.st==="Matched"?"b-ok":"b-neutral"}">${r.st}</span></td></tr>`).join("")}</tbody>
+      <tfoot><tr><td class="l" colspan="2">Total movement</td><td>${fmt(d.mv)}</td><td></td></tr></tfoot></table>`;
+  }
+  $("app").classList.add("open");$("drawer").setAttribute("aria-hidden","false");$("dClose").focus();
+}
+function closeDrawer(){$("app").classList.remove("open");$("drawer").setAttribute("aria-hidden","true");}
+
+/* ---------- Events ---------- */
+$("rows").addEventListener("click",e=>{
+  const t=e.target.closest("[data-t]"),v=e.target.closest("[data-v]"),m=e.target.closest(".mv");
+  if(t){S.expanded.has(t.dataset.t)?S.expanded.delete(t.dataset.t):S.expanded.add(t.dataset.t);renderRows();}
+  else if(v){PARTIES.find(x=>x.id===v.dataset.v).verified={by:"You",at:new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})};renderRows();}
+  else if(m)openDrawer(m.dataset.p,m.dataset.a,m.dataset.d);
+});
+$("pills").addEventListener("click",e=>{const b=e.target.closest("[data-f]");if(b){S.filter=b.dataset.f;render();}});
+$("vFull").onclick=()=>{S.closingOnly=false;render();};
+$("vClose").onclick=()=>{S.closingOnly=true;render();};
+$("shortOnly").onchange=e=>{S.shortOnly=e.target.checked;renderRows();};
+$("expAll").onclick=()=>{PARTIES.forEach(p=>S.expanded.add(p.id));renderRows();};
+$("colAll").onclick=()=>{S.expanded.clear();renderRows();};
+$("q").oninput=e=>{S.q=e.target.value.trim();renderRows();};
+$("prev").onclick=()=>{S.date=addBiz(S.date,-1);render();};
+$("next").onclick=()=>{S.date=addBiz(S.date,1);render();};
+$("refresh").onclick=()=>{$("upd").textContent=now();render();};
+$("dClose").onclick=closeDrawer;$("dbg").onclick=closeDrawer;
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeDrawer();});
+window.addEventListener("resize",syncSticky);
+let timer;const setAuto=()=>{clearInterval(timer);const s=parseInt($("auto").value);if(s)timer=setInterval(()=>{$("upd").textContent=now();},s*1000);};
+$("auto").onchange=setAuto;
+
+/* ---------- Init: parties with a short account start expanded ---------- */
+PARTIES.forEach(p=>{if(shortAccs(p).length)S.expanded.add(p.id);});
+$("upd").textContent="21:22:47";
+setAuto();render();
+</script>
+</body>
+</html>
